@@ -4,14 +4,26 @@
 public class Player : MonoBehaviour, IExplodable
 {
     [SerializeField] private int _health = 5;
+    private int Health
+    {
+        get => _health;
+        set
+        {
+            if (value >= 0)
+                _health = value;
+            
+        }
+    }
+
     [SerializeField] private PlayerHealthUi _healthUi;
     [SerializeField] private Sprite[] _sprites;
+    [SerializeField] private GameOver _gameOverManager;
 
 
     [SerializeField] private Bomb _bombPrefab;
     [SerializeField] private float _bombInstallReloadTime = 2f;
     private float _bombInstallCooldown;
-    
+
     private SpriteRenderer _renderer;
 
 
@@ -20,7 +32,7 @@ public class Player : MonoBehaviour, IExplodable
         _renderer = GetComponent<SpriteRenderer>();
 
         _bombInstallCooldown = _bombInstallReloadTime;
-        _healthUi.UpdateHealth(_health);
+        _healthUi.UpdateHealth(Health);
     }
 
     private void Update()
@@ -37,12 +49,16 @@ public class Player : MonoBehaviour, IExplodable
     {
         _renderer.sprite = _sprites[(int) lookDirectionType];
     }
-    
+
     public void ChangeHealth(int amount)
     {
-        _health += amount;
-        _healthUi.UpdateHealth(_health);
+        Health += amount;
+        if (Health <= 0)
+            _gameOverManager.Lose();
+        _healthUi.UpdateHealth(Health);
     }
+
+    
 
     public void TryInstallBomb()
     {

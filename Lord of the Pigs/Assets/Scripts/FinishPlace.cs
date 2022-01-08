@@ -1,8 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 [RequireComponent(typeof(Collider2D))]
 public class FinishPlace : MonoBehaviour
 {
+    private GameOver _gameOver;
+
+    private void Awake()
+    {
+        _gameOver = FindObjectOfType<GameOver>();
+    }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -14,7 +21,7 @@ public class FinishPlace : MonoBehaviour
     
     private void GameWon()
     {
-        Debug.Log($"<color=green> Trigger Finish </color>");
+        _gameOver.Won();
     }
 }
 

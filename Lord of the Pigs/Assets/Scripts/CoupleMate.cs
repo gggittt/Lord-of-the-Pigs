@@ -3,7 +3,7 @@
 public class CoupleMate : MonoBehaviour
 {
     float _playerHoldTime;
-    float _targetTime = 3f;
+    [SerializeField] float _targetTime = 3f;
 
     private void OnTriggerExit2D(Collider2D other)
     {

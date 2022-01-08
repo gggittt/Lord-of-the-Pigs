@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(SpriteRenderer), typeof(EnemyMove))]
 public class Enemy : MonoBehaviour, IExplodable
 {
 
@@ -13,13 +12,16 @@ public class Enemy : MonoBehaviour, IExplodable
     [SerializeField] private Sprite[] _spritesAngry;
     private int _spriteIndex;
     private SpriteRenderer _renderer;
+    private EnemyMove _enemyMove;
 
-    private EnemyPhaseType _enemyPhaseType = EnemyPhaseType.Casual;
+    private EnemyPhaseType _phaseType = EnemyPhaseType.Casual;
+    private LookDirectionType _lookDirectionType = LookDirectionType.Left;
 
     private Dictionary<EnemyPhaseType, Sprite[]> _phaseSpritePair;
 
     private void Awake()
     {
+        _enemyMove = GetComponent<EnemyMove>();
         _renderer = GetComponent<SpriteRenderer>();
         _phaseSpritePair = new Dictionary<EnemyPhaseType, Sprite[]>()
         {
@@ -29,48 +31,39 @@ public class Enemy : MonoBehaviour, IExplodable
         };
     }
     
-    public void UpdateDirectionSprite(Vector2Int targetPosition)
+    public void UpdateDirectionSprite(LookDirectionType lookDirectionType)
     {
-        var spriteSet = _phaseSpritePair[_enemyPhaseType];
-
-        var direction = GetDirection(targetPosition);
-        _renderer.sprite = spriteSet[direction];
+        _lookDirectionType = lookDirectionType;
+        UpdateSprite();
     }
     
-    private int GetDirection(Vector2Int targetPosition)
+    private void UpdateSprite()
     {
-        return 2;
+        var spriteSet = _phaseSpritePair[_phaseType];
+
+        _renderer.sprite = spriteSet[(int) _lookDirectionType];
     }
 
-    public void Explode()
+    public void GetBombEffect()
     {
         StartCoroutine(Stun());
     }
 
     private IEnumerator Stun()
     {
-        SetDirtySpriteSet();
+        BecameDirty();
+        StartCoroutine(_enemyMove.Stun(_stunSeconds));
         yield return new WaitForSeconds(_stunSeconds);
         BecameAngry();
     }
 
-    private void BecameAngry()
+    private void ChangePhaseAndSprite(EnemyPhaseType phase)
     {
-        _enemyPhaseType = EnemyPhaseType.Angry;
-        SetAngrySpriteSet();
+        _phaseType = phase;
+        UpdateSprite();
     }
-
-    private void SetAngrySpriteSet()
-    {
-        throw new NotImplementedException();
-    }
-
-    private void SetDirtySpriteSet()
-    {
-        throw new NotImplementedException();
-    }
-
-    
+    private void BecameAngry() => ChangePhaseAndSprite(EnemyPhaseType.Angry);
+    private void BecameDirty() => ChangePhaseAndSprite(EnemyPhaseType.Dirty);
 }
 
 

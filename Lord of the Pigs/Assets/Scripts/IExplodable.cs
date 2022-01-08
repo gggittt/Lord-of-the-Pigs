@@ -1,4 +1,4 @@
 ﻿public interface IExplodable
 {
-    void Explode();
+    void GetBombEffect();
 }

@@ -1,20 +1,26 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-
+[RequireComponent(typeof(SpriteRenderer))]
 public class Player : MonoBehaviour, IExplodable
 {
-
     [SerializeField] private int _health = 5;
+    [SerializeField] private PlayerHealthUi _healthUi;
+    [SerializeField] private Sprite[] _sprites;
+
+
     [SerializeField] private Bomb _bombPrefab;
     [SerializeField] private float _bombInstallReloadTime = 2f;
     private float _bombInstallCooldown;
+    
+    private SpriteRenderer _renderer;
+
 
     private void Awake()
     {
+        _renderer = GetComponent<SpriteRenderer>();
+
         _bombInstallCooldown = _bombInstallReloadTime;
+        _healthUi.UpdateHealth(_health);
     }
 
     private void Update()
@@ -22,15 +28,20 @@ public class Player : MonoBehaviour, IExplodable
         _bombInstallCooldown -= Time.deltaTime;
     }
 
-    private void InstallBomb()
+    public void GetBombEffect()
     {
-        var bomb = Instantiate(_bombPrefab);
-        bomb.transform.position = transform.position;
+        ChangeHealth(-1);
     }
 
-    private void OnCollisionEnter2D(Collision2D other)
+    public void ChangeSpriteByDirection(LookDirectionType lookDirectionType)
     {
-        //Debug.Log($"<color=cyan> {other.gameObject.name}  </color>");
+        _renderer.sprite = _sprites[(int) lookDirectionType];
+    }
+    
+    public void ChangeHealth(int amount)
+    {
+        _health += amount;
+        _healthUi.UpdateHealth(_health);
     }
 
     public void TryInstallBomb()
@@ -42,13 +53,9 @@ public class Player : MonoBehaviour, IExplodable
         }
     }
 
-    public void Explode()
+    private void InstallBomb()
     {
-        TakeDamage();
-    }
-
-    private void TakeDamage()
-    {
-        _health--;
+        var bomb = Instantiate(_bombPrefab);
+        bomb.transform.position = transform.position;
     }
 }

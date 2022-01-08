@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Player), typeof(Rigidbody2D))]
 public class PlayerInput : MonoBehaviour
@@ -11,6 +8,8 @@ public class PlayerInput : MonoBehaviour
 
     private Rigidbody2D _rigidbody2D;
     private Player _player;
+    [SerializeField] private KeyCode _bombButton = KeyCode.E;
+
 
     private void Awake()
     {
@@ -21,28 +20,32 @@ public class PlayerInput : MonoBehaviour
     private void FixedUpdate()
     {
         Vector2 velocity;
-#if UNITY_ANDROID
+#if UNITY_EDITOR || UNITY_ANDROID
         velocity = new Vector2(
-            _joystick.Horizontal, 
+            _joystick.Horizontal,
             _joystick.Vertical
         );
 #endif
-#if UNITY_EDITOR || UNITY_STANDALONE_WIN
+#if UNITY_STANDALONE
         velocity = new Vector2(
             Input.GetAxis("Horizontal"),
             Input.GetAxis("Vertical")
         );
 #endif
-        
+
         _rigidbody2D.velocity = velocity * _moveSpeed;
+
+        if (velocity.x != 0 && velocity.y != 0)
+        {
+            var lookDirType = CalculateDirection.GetDir(velocity);
+
+            _player.ChangeSpriteByDirection(lookDirType);
+        }
     }
 
     private void Update()
     {
-        //в отдельную функцию все про бомбу
-
-
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(_bombButton))
         {
             _player.TryInstallBomb();
         }

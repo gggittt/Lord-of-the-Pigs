@@ -7,7 +7,7 @@ public class Stone : MonoBehaviour, IExplodable
     [SerializeField] private FinishPlace _finishGoPrefab;
     
 
-    public void Explode()
+    public void GetBombEffect()
     {
         if (_isThisStoneHideFinish)
         {
